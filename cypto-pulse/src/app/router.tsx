@@ -7,11 +7,14 @@ function getCoinIdFromPath(pathname: string) {
   const [pathWithoutQuery] = pathname.split(/[?#]/);
   const normalizedPath = pathWithoutQuery.replace(/\/+$/, "");
   const segments = normalizedPath.split("/").filter(Boolean);
-  const coinIndex = segments.lastIndexOf("coin");
 
-  if (coinIndex === -1 || !segments[coinIndex + 1]) return null;
+  if (segments[0] !== "coin" || !segments[1]) return null;
 
-  return decodeURIComponent(segments[coinIndex + 1]);
+  try {
+    return decodeURIComponent(segments[1]);
+  } catch {
+    return null;
+  }
 }
 
 export default function AppRouter() {

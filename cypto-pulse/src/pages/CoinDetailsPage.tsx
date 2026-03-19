@@ -2,6 +2,7 @@ import PriceChart from "../components/crypto/PriceChart";
 import ErrorState from "../ui/ErrorState";
 import LoadingState from "../ui/LoadingState";
 import { useCoinDetails } from "../hooks/useCoinDetails";
+import { useEffect, useState } from "react";
 import {
   formatCompactNumber,
   formatCurrency,
@@ -14,7 +15,29 @@ type CoinDetailsPageProps = {
 };
 
 export default function CoinDetailsPage({ coinId }: CoinDetailsPageProps) {
-  const { coin, chart, loading, error } = useCoinDetails(coinId);
+  const { coin, chart, loading, error, refresh } = useCoinDetails(coinId);
+  const [showTransientNotice, setShowTransientNotice] = useState(false);
+  const isTransientError = /rate limit|too many requests|temporarily/i.test(error || "");
+
+  useEffect(() => {
+    if (!error || !isTransientError) {
+      setShowTransientNotice(false);
+      return;
+    }
+
+    setShowTransientNotice(true);
+    return;
+  }, [error, isTransientError]);
+
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    if (!error) {
+      setShowTransientNotice(false);
+    }
+  }, [loading, error]);
 
   const goHome = () => {
     if (window.location.pathname !== "/") {
@@ -49,6 +72,27 @@ export default function CoinDetailsPage({ coinId }: CoinDetailsPageProps) {
           ← Back to dashboard
         </button>
         <ErrorState message={error || "Coin not found."} />
+        {showTransientNotice ? (
+          <div className="rounded-lg border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-sm text-emerald-200">
+            Temporary API issue detected. You can keep this page open and retry when
+            ready.
+            <button
+              type="button"
+              className="ml-3 underline"
+              onClick={() => setShowTransientNotice(false)}
+            >
+              Dismiss
+            </button>
+          </div>
+        ) : null}
+        <button
+          type="button"
+          disabled={loading}
+          className="inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60 hover:bg-white/15"
+          onClick={refresh}
+        >
+          {loading ? "Retrying..." : "Retry"}
+        </button>
       </section>
     );
   }
@@ -59,36 +103,44 @@ export default function CoinDetailsPage({ coinId }: CoinDetailsPageProps) {
       ? `${description.slice(0, 320)}...`
       : description || "No description available.";
 
+  const currentPrice = coin.market_data?.current_price?.usd;
+  const marketCap = coin.market_data?.market_cap?.usd;
+  const volume = coin.market_data?.total_volume?.usd;
+  const change = coin.market_data?.price_change_percentage_24h ?? null;
+  const high24h = coin.market_data?.high_24h?.usd;
+  const low24h = coin.market_data?.low_24h?.usd;
+  const livePrice = coin.market_data?.current_price?.usd;
+
   const stats = [
     {
       label: "Current Price",
-      value: formatCurrency(coin.market_data.current_price.usd),
+      value: typeof currentPrice === "number" ? formatCurrency(currentPrice) : "—",
     },
     {
       label: "Market Cap",
       value:
-        coin.market_data.market_cap.usd > 0
-          ? `$${formatCompactNumber(coin.market_data.market_cap.usd)}`
+        typeof marketCap === "number" && marketCap > 0
+          ? `$${formatCompactNumber(marketCap)}`
           : "—",
     },
     {
       label: "24h Volume",
       value:
-        coin.market_data.total_volume.usd > 0
-          ? `$${formatCompactNumber(coin.market_data.total_volume.usd)}`
+        typeof volume === "number" && volume > 0
+          ? `$${formatCompactNumber(volume)}`
           : "—",
     },
     {
       label: "24h Change",
-      value: formatPercent(coin.market_data.price_change_percentage_24h),
+      value: formatPercent(change),
     },
     {
       label: "24h High",
-      value: formatCurrency(coin.market_data.high_24h.usd),
+      value: typeof high24h === "number" ? formatCurrency(high24h) : "—",
     },
     {
       label: "24h Low",
-      value: formatCurrency(coin.market_data.low_24h.usd),
+      value: typeof low24h === "number" ? formatCurrency(low24h) : "—",
     },
   ];
 
@@ -122,7 +174,7 @@ export default function CoinDetailsPage({ coinId }: CoinDetailsPageProps) {
           <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-5 py-4">
             <p className="text-sm text-slate-400">Live Price</p>
             <p className="mt-2 text-3xl font-semibold text-white">
-              {formatCurrency(coin.market_data.current_price.usd)}
+              {typeof livePrice === "number" ? formatCurrency(livePrice) : "—"}
             </p>
           </div>
         </div>

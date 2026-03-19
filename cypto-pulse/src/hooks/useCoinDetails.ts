@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCoinDetails, getCoinMarketChart } from "../services/cryptoApi";
+import { ApiError, getCoinDetails, getCoinMarketChart } from "../services/cryptoApi";
 import type { CoinChartPoint, CoinDetails } from "../types/crypto";
 
 type CoinDetailsState = {
@@ -7,6 +7,7 @@ type CoinDetailsState = {
   chart: CoinChartPoint[];
   loading: boolean;
   error: string;
+  refresh: () => void;
 };
 
 export function useCoinDetails(coinId: string | null): CoinDetailsState {
@@ -14,6 +15,7 @@ export function useCoinDetails(coinId: string | null): CoinDetailsState {
   const [chart, setChart] = useState<CoinChartPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -27,10 +29,12 @@ export function useCoinDetails(coinId: string | null): CoinDetailsState {
         return;
       }
 
-      try {
-        setLoading(true);
-        setError("");
+      setLoading(true);
+      setError("");
+      setCoin(null);
+      setChart([]);
 
+      try {
         const [coinResult, chartResult] = await Promise.allSettled([
           getCoinDetails(coinId),
           getCoinMarketChart(coinId),
@@ -42,7 +46,11 @@ export function useCoinDetails(coinId: string | null): CoinDetailsState {
           setCoin(coinResult.value);
         } else {
           console.error(coinResult.reason);
-          setError("Unable to load coin details.");
+          if (coinResult.reason instanceof ApiError && coinResult.reason.status === 429) {
+            setError("Rate limit reached. Please wait a bit before retrying.");
+          } else {
+            setError("Unable to load coin details.");
+          }
           setCoin(null);
         }
 
@@ -55,7 +63,11 @@ export function useCoinDetails(coinId: string | null): CoinDetailsState {
       } catch (err) {
         console.error(err);
         if (!ignore) {
-          setError("Unable to load coin details.");
+          if (err instanceof ApiError && err.status === 429) {
+            setError("Rate limit reached. Please wait a bit before retrying.");
+          } else {
+            setError("Unable to load coin details.");
+          }
           setCoin(null);
           setChart([]);
         }
@@ -71,7 +83,9 @@ export function useCoinDetails(coinId: string | null): CoinDetailsState {
     return () => {
       ignore = true;
     };
-  }, [coinId]);
+  }, [coinId, refreshNonce]);
 
-  return { coin, chart, loading, error };
+  const refresh = () => setRefreshNonce((value) => value + 1);
+
+  return { coin, chart, loading, error, refresh };
 }

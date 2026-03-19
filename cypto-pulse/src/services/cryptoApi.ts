@@ -7,11 +7,44 @@ import type {
 
 const BASE_URL = "/api/coingecko";
 
+export class ApiError extends Error {
+  status: number;
+  retryAfter: number | null;
+
+  constructor(message: string, status: number, retryAfter: number | null = null) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.retryAfter = retryAfter;
+  }
+}
+
 type GetMarketsParams = {
   page?: number;
   perPage?: number;
   order?: SortOption;
 };
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (response.ok) {
+    return response.json() as Promise<T>;
+  }
+
+  const retryHeader = response.headers.get("retry-after");
+  const retryAfter = retryHeader
+    ? Number.parseInt(retryHeader, 10)
+    : null;
+
+  if (response.status === 429) {
+    throw new ApiError(
+      "CoinGecko rate limit reached. Please wait before refreshing again.",
+      response.status,
+      Number.isNaN(retryAfter) ? null : retryAfter
+    );
+  }
+
+  throw new ApiError("Request failed.", response.status, retryAfter);
+}
 
 export async function getMarkets({
   page = 1,
@@ -28,35 +61,20 @@ export async function getMarkets({
   });
 
   const response = await fetch(`${BASE_URL}/coins/markets?${params.toString()}`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch crypto market data.");
-  }
-
-  return response.json();
+  return handleResponse<CoinMarket[]>(response);
 }
 
 export async function getCoinDetails(id: string): Promise<CoinDetails> {
   const response = await fetch(
     `${BASE_URL}/coins/${id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`
   );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch coin details.");
-  }
-
-  return response.json();
+  return handleResponse<CoinDetails>(response);
 }
 
 export async function getCoinMarketChart(id: string): Promise<CoinChartPoint[]> {
   const response = await fetch(
     `${BASE_URL}/coins/${id}/market_chart?vs_currency=usd&days=7&interval=daily`
   );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch coin chart data.");
-  }
-
-  const data = await response.json();
+  const data = await handleResponse<{ prices: CoinChartPoint[] }>(response);
   return data.prices;
 }

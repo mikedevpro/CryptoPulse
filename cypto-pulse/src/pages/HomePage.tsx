@@ -54,7 +54,7 @@ export default function HomePage({ onSelectCoin }: HomePageProps) {
       {loading ? <LoadingState /> : null}
       {error ? <ErrorState message={error} /> : null}
 
-      {!loading && !error ? (
+      {!loading && coins.length > 0 ? (
         <>
           <MarketStats coins={coins} />
           <TopMovers coins={coins} />
@@ -80,6 +80,13 @@ export default function HomePage({ onSelectCoin }: HomePageProps) {
             />
           )}
         </>
+      ) : null}
+
+      {!loading && coins.length === 0 && error ? (
+        <EmptyState
+          title="No cached market data"
+          description="We are temporarily rate-limited by the market provider. Please wait a moment and refresh again."
+        />
       ) : null}
     </div>
   );
