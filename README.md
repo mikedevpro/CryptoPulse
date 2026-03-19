@@ -79,7 +79,7 @@ types/
 ## ⚡ Getting Started
 
 ```bash
-git clone https://github.com/mikedevpro/crypto-pulse.git
+git clone https://github.com/mikedevpro/CryptoPulse.git
 cd crypto-pulse
 npm install
 npm run dev
