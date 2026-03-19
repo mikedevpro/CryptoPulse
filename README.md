@@ -5,7 +5,7 @@ CryptoPulse is a modern, responsive crypto market dashboard built with React and
 ---
 
 ## 🌐 Live Demo
-👉 Coming soon!
+👉 crypto-pulse-ashy.vercel.app
 
 ---
 
