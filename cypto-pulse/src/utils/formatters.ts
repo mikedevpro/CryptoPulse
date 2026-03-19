@@ -17,3 +17,7 @@ export function formatPercent(value: number | null) {
   if (value === null) return "—";
   return `${value.toFixed(2)}%`;
 }
+
+export function stripHtml(html: string) {
+  return html.replace(/<[^>]*>/g, "").trim();
+}

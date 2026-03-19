@@ -1,6 +1,11 @@
-import type { CoinMarket, SortOption } from "../types/crypto";
+import type {
+  CoinChartPoint,
+  CoinDetails,
+  CoinMarket,
+  SortOption,
+} from "../types/crypto";
 
-const BASE_URL = "https://api.coingecko.com/api/v3";
+const BASE_URL = "/api/coingecko";
 
 type GetMarketsParams = {
   page?: number;
@@ -29,4 +34,29 @@ export async function getMarkets({
   }
 
   return response.json();
+}
+
+export async function getCoinDetails(id: string): Promise<CoinDetails> {
+  const response = await fetch(
+    `${BASE_URL}/coins/${id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch coin details.");
+  }
+
+  return response.json();
+}
+
+export async function getCoinMarketChart(id: string): Promise<CoinChartPoint[]> {
+  const response = await fetch(
+    `${BASE_URL}/coins/${id}/market_chart?vs_currency=usd&days=7&interval=daily`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch coin chart data.");
+  }
+
+  const data = await response.json();
+  return data.prices;
 }

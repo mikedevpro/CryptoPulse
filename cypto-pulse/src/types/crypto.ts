@@ -15,3 +15,38 @@ export type SortOption =
   | "market_cap_asc"
   | "volume_desc"
   | "volume_asc";
+
+export type CoinDetails = {
+  id: string;
+  name: string;
+  symbol: string;
+  description: {
+    en: string;
+  };
+  image: {
+    thumb: string;
+    small: string;
+    large: string;
+  };
+  market_cap_rank: number;
+  market_data: {
+    current_price: {
+      usd: number;
+    };
+    market_cap: {
+      usd: number;
+    };
+    total_volume: {
+      usd: number;
+    };
+    high_24h: {
+      usd: number;
+    };
+    low_24h: {
+      usd: number;
+    };
+    price_change_percentage_24h: number | null;
+  };
+};
+
+export type CoinChartPoint = [number, number];

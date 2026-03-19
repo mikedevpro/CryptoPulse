@@ -10,7 +10,11 @@ import LoadingState from "../ui/LoadingState";
 import { useCryptoMarkets } from "../hooks/useCryptoMarkets";
 import type { SortOption } from "../types/crypto";
 
-export default function HomePage() {
+type HomePageProps = {
+  onSelectCoin: (id: string) => void;
+};
+
+export default function HomePage({ onSelectCoin }: HomePageProps) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("market_cap_desc");
   const { coins, loading, error } = useCryptoMarkets(sort);
@@ -63,7 +67,7 @@ export default function HomePage() {
           </section>
 
           {filteredCoins.length > 0 ? (
-            <CoinTable coins={filteredCoins} />
+            <CoinTable coins={filteredCoins} onCoinClick={onSelectCoin} />
           ) : (
             <EmptyState
               title="No matching coins found"

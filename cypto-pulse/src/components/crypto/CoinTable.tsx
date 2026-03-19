@@ -7,16 +7,20 @@ import {
 
 type CoinTableProps = {
   coins: CoinMarket[];
+  onCoinClick?: (id: string) => void;
 };
 
-export default function CoinTable({ coins }: CoinTableProps) {
+export default function CoinTable({ coins, onCoinClick }: CoinTableProps) {
   return (
     <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm">
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-950/60 text-slate-300">
+      <div className="max-h-[70vh] overflow-y-auto">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead className="sticky top-0 z-20 bg-slate-950/80 backdrop-blur text-slate-300">
             <tr>
-              <th className="px-4 py-4 font-medium">#</th>
+              <th className="sticky left-0 z-30 bg-slate-950/80 px-4 py-4 font-medium">
+                #
+              </th>
               <th className="px-4 py-4 font-medium">Coin</th>
               <th className="px-4 py-4 font-medium">Price</th>
               <th className="px-4 py-4 font-medium">24h</th>
@@ -36,15 +40,22 @@ export default function CoinTable({ coins }: CoinTableProps) {
               return (
                 <tr
                   key={coin.id}
-                  className="border-t border-white/10 text-slate-200 transition hover:bg-white/5"
+                  className="cursor-pointer border-t border-white/10 text-slate-200 transition hover:bg-white/5"
+                  onClick={() => onCoinClick?.(coin.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      onCoinClick?.(coin.id);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
-                  <td className="px-4 py-4">{coin.market_cap_rank}</td>
+                  <td className="sticky left-0 z-10 bg-slate-900/70 px-4 py-4">
+                    {coin.market_cap_rank}
+                  </td>
 
                   <td className="px-4 py-4">
-                    <a
-                      href={`/coin/${coin.id}`}
-                      className="flex items-center gap-3"
-                    >
+                    <div className="flex items-center gap-3">
                       <img
                         src={coin.image}
                         alt={coin.name}
@@ -56,7 +67,7 @@ export default function CoinTable({ coins }: CoinTableProps) {
                           {coin.symbol}
                         </p>
                       </div>
-                    </a>
+                    </div>
                   </td>
 
                   <td className="px-4 py-4 font-medium text-white">
@@ -72,17 +83,22 @@ export default function CoinTable({ coins }: CoinTableProps) {
                   </td>
 
                   <td className="px-4 py-4">
-                    ${formatCompactNumber(coin.market_cap)}
+                    {coin.market_cap > 0
+                      ? `$${formatCompactNumber(coin.market_cap)}`
+                      : "—"}
                   </td>
 
                   <td className="px-4 py-4">
-                    ${formatCompactNumber(coin.total_volume)}
+                    {coin.total_volume > 0
+                      ? `$${formatCompactNumber(coin.total_volume)}`
+                      : "—"}
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

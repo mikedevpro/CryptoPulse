@@ -1,8 +1,18 @@
+import type { MouseEvent } from "react";
+
 export default function Navbar() {
+  const goHome = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    if (window.location.pathname !== "/") {
+      window.history.pushState({}, "", "/");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    }
+  };
+
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/60 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <a href="/" className="text-xl font-bold tracking-tight text-white">
+        <a href="/" onClick={goHome} className="text-xl font-bold tracking-tight text-white">
           Crypto<span className="text-emerald-400">Pulse</span>
         </a>
 

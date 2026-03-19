@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
 import Navbar from "./Navbar";
 
-interface AppShellProps {
+type AppShellProps = {
   children: ReactNode;
-}
+};
 
 export default function AppShell({ children }: AppShellProps) {
   return (
