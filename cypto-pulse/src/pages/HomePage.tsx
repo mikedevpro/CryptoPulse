@@ -35,18 +35,18 @@ export default function HomePage() {
   }, [coins, favorites]);
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-[0_0_60px_rgba(16,185,129,0.08)] backdrop-blur-sm">
+    <div className="space-y-6 sm:space-y-8">
+      <section className="rounded-[1.5rem] border border-white/10 bg-white/5 p-3 shadow-[0_0_40px_rgba(16,185,129,0.08)] backdrop-blur-sm sm:rounded-[2rem] sm:p-8 sm:shadow-[0_0_60px_rgba(16,185,129,0.08)]">
         <div className="max-w-3xl space-y-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-400">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-400 sm:text-sm sm:tracking-[0.25em]">
             Real-time crypto market dashboard
           </p>
 
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+          <h1 className="text-2xl font-bold leading-tight tracking-tight text-white sm:text-5xl sm:leading-tight">
             Track crypto markets with clarity and style.
           </h1>
 
-          <p className="text-lg leading-8 text-slate-300">
+          <p className="text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
             CryptoPulse helps users explore top-performing coins, monitor
             24-hour movement, and search market data in a clean, responsive
             interface built with React and TypeScript.
@@ -59,11 +59,13 @@ export default function HomePage() {
 
       {!loading && !error ? (
         <>
-          <MarketStats coins={coins} />
-          <FavoritesPanel favoriteCoins={favoriteCoins} />
-          <TopMovers coins={coins} />
+          <div className="space-y-4 sm:space-y-6">
+            <MarketStats coins={coins} />
+            <FavoritesPanel favoriteCoins={favoriteCoins} />
+            <TopMovers coins={coins} />
+          </div>
 
-          <section className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 md:flex-row md:items-center md:justify-between">
+          <section className="sticky top-16 z-40 -mx-1 mb-3 flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-950/75 p-2 shadow-[0_0_26px_rgba(2,6,23,0.45)] backdrop-blur-sm sm:top-20 sm:static sm:mb-0 sm:-mx-0 sm:rounded-3xl sm:bg-white/5 sm:p-4">
             <div className="flex-1">
               <SearchBar value={search} onChange={setSearch} />
             </div>
@@ -71,11 +73,13 @@ export default function HomePage() {
           </section>
 
           {filteredCoins.length > 0 ? (
-            <CoinTable
-              coins={filteredCoins}
-              favorites={favorites}
-              onToggleFavorite={toggleFavorite}
-            />
+            <div className="mt-2 sm:mt-4">
+              <CoinTable
+                coins={filteredCoins}
+                favorites={favorites}
+                onToggleFavorite={toggleFavorite}
+              />
+            </div>
           ) : (
             <EmptyState
               title="No matching coins found"
