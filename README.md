@@ -80,6 +80,34 @@ git clone https://github.com/mikedevpro/crypto-pulse.git
 cd crypto-pulse
 npm install
 npm run dev
+```
+
+---
+
+## 🚢 Deploying to Vercel
+
+Use these steps when publishing:
+
+1. Push your code to your connected branch.
+2. In Vercel, set project root to `cypto-pulse` for framework detection (or keep auto-detect if this file structure is already recognized).
+3. Confirm build settings:
+   - Build command: `npm run build`
+   - Output directory: `dist`
+   - If root deploy config is used, run:
+     - `cd cypto-pulse`
+     - `npm run build`
+4. Make sure a `vercel.json` exists at repo root with the SPA rewrite for client-side routing:
+   ```json
+   {
+     "rewrites": [
+       { "source": "/(.*)", "destination": "/index.html" }
+     ]
+   }
+   ```
+5. Verify after deploy:
+   - Home route loads successfully.
+   - Deep routes like `/coin/<id>` work after refresh.
+   - API proxy path (if still relying on `/api/coingecko`) returns data.
 
 ## 🎯 Future Improvements
 
