@@ -17,7 +17,7 @@ type HomePageProps = {
 export default function HomePage({ onSelectCoin }: HomePageProps) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("market_cap_desc");
-  const { coins, loading, error } = useCryptoMarkets(sort);
+  const { coins, loading, error, refresh } = useCryptoMarkets(sort);
 
   const filteredCoins = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -67,7 +67,12 @@ export default function HomePage({ onSelectCoin }: HomePageProps) {
           </section>
 
           {filteredCoins.length > 0 ? (
-            <CoinTable coins={filteredCoins} onCoinClick={onSelectCoin} />
+            <CoinTable
+              coins={filteredCoins}
+              onCoinClick={onSelectCoin}
+              onRefresh={refresh}
+              isRefreshing={loading}
+            />
           ) : (
             <EmptyState
               title="No matching coins found"

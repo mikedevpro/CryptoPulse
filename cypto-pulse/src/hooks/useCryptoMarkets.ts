@@ -6,6 +6,7 @@ export function useCryptoMarkets(sort: SortOption) {
   const [coins, setCoins] = useState<CoinMarket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -36,7 +37,9 @@ export function useCryptoMarkets(sort: SortOption) {
     return () => {
       ignore = true;
     };
-  }, [sort]);
+  }, [sort, refreshNonce]);
 
-  return { coins, loading, error };
+  const refresh = () => setRefreshNonce((value) => value + 1);
+
+  return { coins, loading, error, refresh };
 }
