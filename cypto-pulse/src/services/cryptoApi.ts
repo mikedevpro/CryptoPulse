@@ -23,6 +23,7 @@ type GetMarketsParams = {
   page?: number;
   perPage?: number;
   order?: SortOption;
+  coinIds?: string[];
 };
 
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -50,15 +51,21 @@ export async function getMarkets({
   page = 1,
   perPage = 25,
   order = "market_cap_desc",
+  coinIds,
 }: GetMarketsParams = {}): Promise<CoinMarket[]> {
+  const idsParam = coinIds?.filter(Boolean).join(",");
   const params = new URLSearchParams({
     vs_currency: "usd",
     order,
-    per_page: String(perPage),
     page: String(page),
     sparkline: "true",
     price_change_percentage: "24h",
+    per_page: String(perPage),
   });
+
+  if (idsParam) {
+    params.set("ids", idsParam);
+  }
 
   const response = await fetch(`${BASE_URL}/coins/markets?${params.toString()}`);
   return handleResponse<CoinMarket[]>(response);

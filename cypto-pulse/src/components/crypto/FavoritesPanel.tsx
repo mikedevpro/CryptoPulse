@@ -11,7 +11,7 @@ export default function FavoritesPanel({
 }: FavoritesPanelProps) {
   if (favoriteCoins.length === 0) {
     return (
-      <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
+      <section className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6">
         <h2 className="text-xl font-semibold text-white">Your Watchlist</h2>
         <p className="mt-3 text-slate-300">
           Favorite a few coins to build your watchlist.
@@ -21,7 +21,7 @@ export default function FavoritesPanel({
   }
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
+    <section className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="text-xl font-semibold text-white">Your Watchlist</h2>
         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-slate-300">
@@ -41,6 +41,7 @@ export default function FavoritesPanel({
               className="rounded-2xl border border-white/10 bg-slate-950/30 p-4 transition hover:border-white/20 hover:bg-white/5"
               type="button"
               onClick={() => navigateToCoin(coin.id)}
+              aria-label={`Open details for ${coin.name}`}
             >
               <div className="flex items-center gap-3">
                 <img

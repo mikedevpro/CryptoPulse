@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CoinTable from "../components/crypto/CoinTable";
 import FavoritesPanel from "../components/crypto/FavoritesPanel";
 import MarketStats from "../components/crypto/MarketStats";
@@ -10,13 +10,20 @@ import ErrorState from "../ui/ErrorState";
 import LoadingState from "../ui/LoadingState";
 import { useFavorites } from "../hooks/useFavorites";
 import { useCryptoMarkets } from "../hooks/useCryptoMarkets";
-import type { SortOption } from "../types/crypto";
+import { getMarkets } from "../services/cryptoApi";
+import type { CoinMarket, SortOption } from "../types/crypto";
 
 export default function HomePage() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("market_cap_desc");
   const { coins, loading, error } = useCryptoMarkets(sort);
   const { favorites, toggleFavorite } = useFavorites();
+  const [favoriteLookupCoins, setFavoriteLookupCoins] = useState<CoinMarket[]>([]);
+
+  const uniqueFavorites = useMemo(
+    () => Array.from(new Set(favorites)),
+    [favorites]
+  );
 
   const filteredCoins = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -31,8 +38,52 @@ export default function HomePage() {
   }, [coins, search]);
 
   const favoriteCoins = useMemo(() => {
-    return coins.filter((coin) => favorites.includes(coin.id));
-  }, [coins, favorites]);
+    const marketById = new Map(coins.map((coin) => [coin.id, coin]));
+    const fallbackById = new Map(
+      favoriteLookupCoins.map((coin) => [coin.id, coin])
+    );
+
+    return uniqueFavorites
+      .map((id) => marketById.get(id) || fallbackById.get(id))
+      .filter((coin): coin is CoinMarket => Boolean(coin));
+  }, [coins, favoriteLookupCoins, uniqueFavorites]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadMissingFavorites() {
+      const marketIds = new Set(coins.map((coin) => coin.id));
+      const missingIds = uniqueFavorites.filter((id) => !marketIds.has(id));
+
+      if (missingIds.length === 0) {
+        if (active) {
+          setFavoriteLookupCoins([]);
+        }
+        return;
+      }
+
+      try {
+        const data = await getMarkets({
+          coinIds: missingIds,
+          perPage: Math.min(250, Math.max(missingIds.length, 1)),
+        });
+
+        if (!active) return;
+        setFavoriteLookupCoins(data);
+      } catch (error) {
+        if (active) {
+          console.error("Failed to load missing favorite coins:", error);
+          setFavoriteLookupCoins([]);
+        }
+      }
+    }
+
+    loadMissingFavorites();
+
+    return () => {
+      active = false;
+    };
+  }, [coins, uniqueFavorites]);
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -54,8 +105,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {loading ? <LoadingState /> : null}
-      {error ? <ErrorState message={error} /> : null}
+      {loading ? (
+        <div role="status" aria-live="polite">
+          <LoadingState />
+        </div>
+      ) : null}
+      {error ? (
+        <div role="alert" aria-live="assertive">
+          <ErrorState message={error} />
+        </div>
+      ) : null}
 
       {!loading && !error ? (
         <>

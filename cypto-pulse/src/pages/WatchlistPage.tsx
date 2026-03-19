@@ -1,13 +1,67 @@
 import FavoritesPanel from "../components/crypto/FavoritesPanel";
 import EmptyState from "../ui/EmptyState";
+import { useMemo, useState, useEffect } from "react";
 import { useFavorites } from "../hooks/useFavorites";
-import { useCryptoMarkets } from "../hooks/useCryptoMarkets";
+import { getMarkets } from "../services/cryptoApi";
+import type { CoinMarket } from "../types/crypto";
 
 export default function WatchlistPage() {
-  const { coins, loading, error } = useCryptoMarkets("market_cap_desc");
   const { favorites } = useFavorites();
+  const [favoriteCoins, setFavoriteCoins] = useState<CoinMarket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const favoriteCoins = coins.filter((coin) => favorites.includes(coin.id));
+  const uniqueFavorites = useMemo(
+    () => Array.from(new Set(favorites)),
+    [favorites]
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    async function load() {
+      if (uniqueFavorites.length === 0) {
+        if (active) {
+          setFavoriteCoins([]);
+          setLoading(false);
+          setError("");
+        }
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError("");
+        const data = await getMarkets({
+          coinIds: uniqueFavorites,
+          perPage: Math.min(250, Math.max(uniqueFavorites.length, 1)),
+        });
+
+        if (!active) return;
+
+        const coinById = new Map(data.map((coin) => [coin.id, coin]));
+        const orderedFavorites = uniqueFavorites
+          .map((id) => coinById.get(id))
+          .filter((coin): coin is CoinMarket => Boolean(coin));
+
+        setFavoriteCoins(orderedFavorites);
+      } catch {
+        if (active) {
+          setError("Unable to load watchlist data right now.");
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
+
+    return () => {
+      active = false;
+    };
+  }, [uniqueFavorites]);
 
   return (
     <div className="space-y-8">
@@ -28,13 +82,21 @@ export default function WatchlistPage() {
       </section>
 
       {loading ? (
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-300">
+        <div
+          role="status"
+          aria-live="polite"
+          className="rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-300"
+        >
           Loading watchlist...
         </div>
       ) : null}
 
       {error ? (
-        <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-300">
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-300"
+        >
           {error}
         </div>
       ) : null}

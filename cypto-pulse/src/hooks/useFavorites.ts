@@ -2,21 +2,55 @@ import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "crypto-pulse-favorites";
 
-export function useFavorites() {
-  const [favorites, setFavorites] = useState<string[]>([]);
+function readFavoritesFromStorage(): string[] {
+  if (typeof window === "undefined") return [];
 
-  useEffect(() => {
+  try {
     const saved = localStorage.getItem(STORAGE_KEY);
 
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as string[];
-        setFavorites(parsed);
-      } catch (error) {
-        console.error("Failed to parse favorites from localStorage:", error);
-      }
+    if (!saved) {
+      return [];
     }
+
+    const parsed = JSON.parse(saved) as unknown;
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter((value): value is string => typeof value === "string");
+  } catch (error) {
+    console.error("Failed to parse favorites from localStorage:", error);
+    return [];
+  }
+}
+
+export function useFavorites() {
+  const [favorites, setFavorites] = useState<string[]>(readFavoritesFromStorage);
+
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== STORAGE_KEY) {
+        return;
+      }
+
+      setFavorites(readFavoritesFromStorage());
+    };
+
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
+
+  useEffect(() => {
+    const deduped = [...new Set(favorites)];
+
+    if (deduped.length !== favorites.length) {
+      setFavorites(deduped);
+    }
+  }, [favorites]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));

@@ -67,31 +67,32 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
   return (
     <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm">
       <div className="max-h-[68vh] overflow-x-auto overflow-y-auto max-[360px]:max-h-[72vh] sm:max-h-[62vh]">
-          <table className="hidden min-w-full text-left text-sm sm:table">
+        <table className="hidden min-w-full text-left text-sm sm:table">
+          <caption className="sr-only">Crypto market table</caption>
           <thead className="sticky top-0 z-20 bg-slate-950/80 backdrop-blur">
             <tr className="border-b border-white/20">
-              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+              <th scope="col" className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 Fav
               </th>
-              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+              <th scope="col" className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 #
               </th>
-              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+              <th scope="col" className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 Coin
               </th>
-              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+              <th scope="col" className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 Price
               </th>
-              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+              <th scope="col" className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 24h
               </th>
-              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+              <th scope="col" className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 Trend
               </th>
-              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+              <th scope="col" className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 Market Cap
               </th>
-              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+              <th scope="col" className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 Volume
               </th>
             </tr>
@@ -127,6 +128,7 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
                       type="button"
                       onClick={() => navigateToCoin(coin.id)}
                       className="flex items-center gap-3 text-left"
+                      aria-label={`Open ${coin.name} details`}
                     >
                       <img
                         src={coin.image}
@@ -197,7 +199,9 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
                     type="button"
                     onClick={() => onToggleFavorite(coin.id)}
                     className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-lg text-emerald-300 transition hover:bg-white/10"
-                    aria-label={isFavorite ? "Unsave coin" : "Save coin"}
+                    aria-label={
+                      isFavorite ? `Remove ${coin.name} from watchlist` : `Save ${coin.name}`
+                    }
                   >
                     {isFavorite ? "★" : "☆"}
                   </button>
@@ -229,19 +233,20 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
                       endSwipe(coin.id);
                     }
                   }}
-                    className="block rounded-2xl bg-white/5 p-2.5 transition-transform max-[360px]:p-2 sm:p-3 sm:transition-none"
+                  className="block rounded-2xl bg-white/5 p-2.5 transition-transform max-[360px]:p-2 sm:p-3 sm:transition-none"
                   style={{
                     transform: `translateX(${offset}px)`,
                     touchAction: "pan-y",
                     transitionProperty: dragState.id === coin.id ? "none" : undefined,
                   }}
                 >
-                    <div className="flex items-start justify-between gap-2 sm:gap-2.5 max-[360px]:gap-1.5 sm:gap-3">
+                  <div className="flex items-start justify-between gap-2 sm:gap-2.5 max-[360px]:gap-1.5 sm:gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <button
                         type="button"
                         onClick={() => navigateToCoin(coin.id)}
                         className="min-w-0 text-left"
+                        aria-label={`Open ${coin.name} details`}
                       >
                         <div className="flex items-center gap-3">
                           <img

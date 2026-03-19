@@ -43,11 +43,12 @@ export default function Sparkline({ prices, positive }: SparklineProps) {
     .join(" ");
 
   return (
-    <div className="h-12 w-28">
+    <div className="h-12 w-28" aria-label="7 day price trend">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="none"
         className="h-full w-full"
+        aria-hidden="true"
       >
         <path
           d={path}
