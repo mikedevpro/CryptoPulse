@@ -33,12 +33,7 @@ export default function AppRouter() {
       {coinId ? (
         <CoinDetailsPage coinId={coinId} />
       ) : (
-        <HomePage
-          onSelectCoin={(id) => {
-            window.history.pushState({}, "", `/coin/${id}`);
-            setPath(`/coin/${id}`);
-          }}
-        />
+        <HomePage />
       )}
     </AppShell>
   );

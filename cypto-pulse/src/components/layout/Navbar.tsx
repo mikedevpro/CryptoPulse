@@ -1,12 +1,10 @@
 import type { MouseEvent } from "react";
+import { navigateTo } from "../../utils/navigation";
 
 export default function Navbar() {
   const goHome = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    if (window.location.pathname !== "/") {
-      window.history.pushState({}, "", "/");
-      window.dispatchEvent(new PopStateEvent("popstate"));
-    }
+    navigateTo("/");
   };
 
   return (

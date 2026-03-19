@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import CoinTable from "../components/crypto/CoinTable";
+import FavoritesPanel from "../components/crypto/FavoritesPanel";
 import MarketStats from "../components/crypto/MarketStats";
 import SearchBar from "../components/crypto/SearchBar";
 import SortSelect from "../components/crypto/SortSelect";
@@ -7,17 +8,15 @@ import TopMovers from "../components/crypto/TopMovers";
 import EmptyState from "../ui/EmptyState";
 import ErrorState from "../ui/ErrorState";
 import LoadingState from "../ui/LoadingState";
+import { useFavorites } from "../hooks/useFavorites";
 import { useCryptoMarkets } from "../hooks/useCryptoMarkets";
 import type { SortOption } from "../types/crypto";
 
-type HomePageProps = {
-  onSelectCoin: (id: string) => void;
-};
-
-export default function HomePage({ onSelectCoin }: HomePageProps) {
+export default function HomePage() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("market_cap_desc");
-  const { coins, loading, error, refresh } = useCryptoMarkets(sort);
+  const { coins, loading, error } = useCryptoMarkets(sort);
+  const { favorites, toggleFavorite } = useFavorites();
 
   const filteredCoins = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -30,6 +29,10 @@ export default function HomePage({ onSelectCoin }: HomePageProps) {
         coin.symbol.toLowerCase().includes(term)
     );
   }, [coins, search]);
+
+  const favoriteCoins = useMemo(() => {
+    return coins.filter((coin) => favorites.includes(coin.id));
+  }, [coins, favorites]);
 
   return (
     <div className="space-y-8">
@@ -54,9 +57,10 @@ export default function HomePage({ onSelectCoin }: HomePageProps) {
       {loading ? <LoadingState /> : null}
       {error ? <ErrorState message={error} /> : null}
 
-      {!loading && coins.length > 0 ? (
+      {!loading && !error ? (
         <>
           <MarketStats coins={coins} />
+          <FavoritesPanel favoriteCoins={favoriteCoins} />
           <TopMovers coins={coins} />
 
           <section className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 md:flex-row md:items-center md:justify-between">
@@ -69,9 +73,8 @@ export default function HomePage({ onSelectCoin }: HomePageProps) {
           {filteredCoins.length > 0 ? (
             <CoinTable
               coins={filteredCoins}
-              onCoinClick={onSelectCoin}
-              onRefresh={refresh}
-              isRefreshing={loading}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
             />
           ) : (
             <EmptyState
@@ -80,13 +83,6 @@ export default function HomePage({ onSelectCoin }: HomePageProps) {
             />
           )}
         </>
-      ) : null}
-
-      {!loading && coins.length === 0 && error ? (
-        <EmptyState
-          title="No cached market data"
-          description="We are temporarily rate-limited by the market provider. Please wait a moment and refresh again."
-        />
       ) : null}
     </div>
   );

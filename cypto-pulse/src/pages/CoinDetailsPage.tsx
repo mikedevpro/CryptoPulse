@@ -3,6 +3,7 @@ import ErrorState from "../ui/ErrorState";
 import LoadingState from "../ui/LoadingState";
 import { useCoinDetails } from "../hooks/useCoinDetails";
 import { useEffect, useState } from "react";
+import { navigateTo } from "../utils/navigation";
 import {
   formatCompactNumber,
   formatCurrency,
@@ -40,10 +41,7 @@ export default function CoinDetailsPage({ coinId }: CoinDetailsPageProps) {
   }, [loading, error]);
 
   const goHome = () => {
-    if (window.location.pathname !== "/") {
-      window.history.pushState({}, "", "/");
-      window.dispatchEvent(new PopStateEvent("popstate"));
-    }
+    navigateTo("/");
   };
 
   if (loading) {
