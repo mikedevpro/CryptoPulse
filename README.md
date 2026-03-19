@@ -80,3 +80,22 @@ git clone https://github.com/mikedevpro/crypto-pulse.git
 cd crypto-pulse
 npm install
 npm run dev
+
+## 🎯 Future Improvements
+
+- Pagination / infinite scroll
+- Advanced filtering (gainers, losers, favorites)
+- Dark/light mode toggle
+- User authentication (save watchlist to backend)
+- Performance optimizations
+
+## 👨‍💻 Author
+
+Michael Nobles
+Full-Stack Web Developer
+
+GitHub: https://github.com/mikedevpro
+
+## 💡 Inspiration
+
+- Built to demonstrate real-world frontend architecture, data handling, and UI/UX design for modern web applications.
