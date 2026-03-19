@@ -3,7 +3,6 @@ import { ApiError, getMarkets } from "../services/cryptoApi";
 import type { CoinMarket, SortOption } from "../types/crypto";
 
 const MARKETS_CACHE_TTL_MS = 15_000;
-const DEFAULT_RETRY_COOLDOWN_MS = 30_000;
 const marketCache = new Map<string, { data: CoinMarket[]; fetchedAt: number }>();
 
 function formatCooldownMessage(remainingMs: number) {

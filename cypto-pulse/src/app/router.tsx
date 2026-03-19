@@ -1,40 +1,49 @@
+import type { ReactElement } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AppShell from "../components/layout/AppShell";
 import HomePage from "../pages/HomePage";
 import CoinDetailsPage from "../pages/CoinDetailsPage";
-import { useEffect, useState } from "react";
+import WatchlistPage from "../pages/WatchlistPage";
 
-function getCoinIdFromPath(pathname: string) {
-  const [pathWithoutQuery] = pathname.split(/[?#]/);
-  const normalizedPath = pathWithoutQuery.replace(/\/+$/, "");
-  const segments = normalizedPath.split("/").filter(Boolean);
+type RouteState =
+  | { view: "home" }
+  | { view: "watchlist" }
+  | { view: "coin"; coinId: string | null };
 
-  if (segments[0] !== "coin" || !segments[1]) return null;
+function resolveRoute(pathname: string): RouteState {
+  const segments = pathname.split("?")[0].split("/").filter(Boolean);
 
-  try {
-    return decodeURIComponent(segments[1]);
-  } catch {
-    return null;
+  if (segments[0] === "watchlist") {
+    return { view: "watchlist" };
   }
+
+  if (segments[0] === "coin") {
+    return { view: "coin", coinId: segments[1] ?? null };
+  }
+
+  return { view: "home" };
 }
 
 export default function AppRouter() {
-  const [path, setPath] = useState(window.location.pathname);
+  const [pathname, setPathname] = useState(() => window.location.pathname);
 
   useEffect(() => {
-    const handlePopState = () => setPath(window.location.pathname);
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
+    const syncLocation = () => setPathname(window.location.pathname);
+    window.addEventListener("popstate", syncLocation);
+    return () => window.removeEventListener("popstate", syncLocation);
   }, []);
 
-  const coinId = getCoinIdFromPath(path);
+  const route = useMemo(() => resolveRoute(pathname), [pathname]);
 
-  return (
-    <AppShell>
-      {coinId ? (
-        <CoinDetailsPage coinId={coinId} />
-      ) : (
-        <HomePage />
-      )}
-    </AppShell>
-  );
+  let page: ReactElement;
+
+  if (route.view === "watchlist") {
+    page = <WatchlistPage />;
+  } else if (route.view === "coin") {
+    page = <CoinDetailsPage coinId={route.coinId} />;
+  } else {
+    page = <HomePage />;
+  }
+
+  return <AppShell>{page}</AppShell>;
 }

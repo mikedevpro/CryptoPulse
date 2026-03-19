@@ -56,7 +56,7 @@ export async function getMarkets({
     order,
     per_page: String(perPage),
     page: String(page),
-    sparkline: "false",
+    sparkline: "true",
     price_change_percentage: "24h",
   });
 

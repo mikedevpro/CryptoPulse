@@ -1,15 +1,12 @@
-import FavoriteButton from "./FavoritesButton";
+import FavoritesButton from "./FavoritesButton";
+import Sparkline from "./Sparkline";
 import type { CoinMarket } from "../../types/crypto";
-import { navigateToCoin } from "../../utils/navigation";
 import {
   formatCompactNumber,
   formatCurrency,
   formatPercent,
 } from "../../utils/formatters";
-import {
-  FAVORITE_COLUMN_WIDTH,
-  COIN_COLUMN_OFFSET,
-} from "../../utils/tableLayout";
+import { navigateToCoin } from "../../utils/navigation";
 
 type CoinTableProps = {
   coins: CoinMarket[];
@@ -24,29 +21,34 @@ export default function CoinTable({
 }: CoinTableProps) {
   return (
     <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm">
-      <div className="relative max-h-[70vh] overflow-auto">
+      <div className="max-h-[62vh] overflow-x-auto overflow-y-auto">
         <table className="min-w-full text-left text-sm">
-          <thead className="sticky top-0 z-20 bg-slate-950/80 backdrop-blur text-slate-300">
-            <tr>
-              <th className="sticky left-0 z-30 bg-slate-950/80 px-4 py-4 font-medium">
+          <thead>
+            <tr className="border-b border-white/20">
+              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 Fav
               </th>
-              <th
-                className="sticky z-20 bg-slate-950/80 px-4 py-4 font-medium"
-                style={{ left: FAVORITE_COLUMN_WIDTH }}
-              >
+              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 #
               </th>
-              <th
-                className="sticky z-20 bg-slate-950/80 px-4 py-4 font-medium"
-                style={{ left: COIN_COLUMN_OFFSET }}
-              >
+              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
                 Coin
               </th>
-              <th className="px-4 py-4 font-medium">Price</th>
-              <th className="px-4 py-4 font-medium">24h</th>
-              <th className="px-4 py-4 font-medium">Market Cap</th>
-              <th className="px-4 py-4 font-medium">Volume</th>
+              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+                Price
+              </th>
+              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+                24h
+              </th>
+              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+                Trend
+              </th>
+              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+                Market Cap
+              </th>
+              <th className="sticky top-0 z-20 bg-slate-950/80 px-4 py-4 font-medium text-slate-300 backdrop-blur">
+                Volume
+              </th>
             </tr>
           </thead>
 
@@ -62,47 +64,24 @@ export default function CoinTable({
               return (
                 <tr
                   key={coin.id}
-                  className={`cursor-pointer border-t border-white/10 text-slate-200 transition hover:bg-white/5 ${
+                  className={`border-t border-white/10 text-slate-200 transition hover:bg-white/5 ${
                     isFavorite ? "bg-emerald-400/5" : ""
                   }`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => navigateToCoin(coin.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      navigateToCoin(coin.id);
-                    }
-                  }}
                 >
-                  <td className="sticky left-0 z-10 bg-slate-900/70 px-4 py-4">
-                    <FavoriteButton
+                  <td className="px-4 py-4">
+                    <FavoritesButton
                       isActive={isFavorite}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onToggleFavorite(coin.id);
-                      }}
+                      onClick={() => onToggleFavorite(coin.id)}
                     />
                   </td>
 
-                  <td
-                    className="sticky z-10 bg-slate-900/70 px-4 py-4"
-                    style={{ left: FAVORITE_COLUMN_WIDTH }}
-                  >
-                    {coin.market_cap_rank}
-                  </td>
+                  <td className="px-4 py-4">{coin.market_cap_rank}</td>
 
-                  <td
-                    className="sticky z-10 bg-slate-900/70 px-4 py-4"
-                    style={{ left: COIN_COLUMN_OFFSET }}
-                  >
+                  <td className="px-4 py-4">
                     <button
                       type="button"
+                      onClick={() => navigateToCoin(coin.id)}
                       className="flex items-center gap-3 text-left"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        navigateToCoin(coin.id);
-                      }}
                     >
                       <img
                         src={coin.image}
@@ -128,6 +107,17 @@ export default function CoinTable({
                     >
                       {formatPercent(coin.price_change_percentage_24h)}
                     </span>
+                  </td>
+
+                  <td className="px-4 py-4">
+                    {coin.sparkline_in_7d?.price?.length ? (
+                      <Sparkline
+                        prices={coin.sparkline_in_7d.price}
+                        positive={change >= 0}
+                      />
+                    ) : (
+                      <span className="text-slate-500">—</span>
+                    )}
                   </td>
 
                   <td className="px-4 py-4">

@@ -8,6 +8,9 @@ export type CoinMarket = {
   market_cap_rank: number;
   total_volume: number;
   price_change_percentage_24h: number | null;
+  sparkline_in_7d?: {
+    price: number[];
+  }
 };
 
 export type SortOption =
