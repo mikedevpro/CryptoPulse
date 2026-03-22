@@ -1,13 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
+export type AppUser = {
+  id: string;
+  email?: string | null;
+};
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabaseEnabled = import.meta.env.VITE_ENABLE_SUPABASE === "true";
+export const isSupabaseConfigured = false;
 
-export const isSupabaseConfigured = Boolean(
-  supabaseEnabled && supabaseUrl && supabaseAnonKey
-);
-
-export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+// Supabase is intentionally disabled for now.
+// When re-enabling, wire the client creation here and set a proper type.
+export const supabase: any = null;

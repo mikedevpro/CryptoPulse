@@ -6,11 +6,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { User } from "@supabase/supabase-js";
-import { isSupabaseConfigured, supabase } from "../services/supabase";
+import { isSupabaseConfigured, supabase, type AppUser } from "../services/supabase";
 
 type AuthContextValue = {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
   configured: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -25,7 +24,7 @@ type AuthProviderProps = {
 };
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,23 +35,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     let active = true;
 
-    supabase.auth.getSession().then(({ data, error }) => {
+    supabase.auth.getSession().then(
+      (result: {
+        data?: { session?: { user?: AppUser } | null };
+        error?: { message?: string } | null;
+      }) => {
       if (!active) return;
 
-      if (error) {
-        console.error("Failed to get auth session:", error);
+      if (result.error) {
+        console.error("Failed to get auth session:", result.error);
       }
 
-      setUser(data.session?.user ?? null);
+      setUser(result.data?.session?.user ?? null);
       setLoading(false);
-    });
+      }
+    );
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(
+      (_event: unknown, session: { user?: AppUser } | null) => {
       setUser(session?.user ?? null);
       setLoading(false);
-    });
+      }
+    );
 
     return () => {
       active = false;
