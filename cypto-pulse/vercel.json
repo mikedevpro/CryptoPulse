@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "cd cypto-pulse && npm run build",
-  "outputDirectory": "cypto-pulse/dist",
   "rewrites": [
     {
       "source": "/api/coingecko/(.*)",
