@@ -7,7 +7,7 @@ export default function Navbar() {
   const isWatchlist = window.location.pathname === "/watchlist";
   const isAuthPage = window.location.pathname === "/auth";
   const { profiles, currentProfileId, switchProfile, createProfile } = useLocalProfile();
-  const { user, signOut, loading: authLoading } = useAuth();
+  const { user, signOut, loading: authLoading, configured } = useAuth();
   const [signOutBusy, setSignOutBusy] = useState(false);
 
   const handleCreateProfile = () => {
@@ -106,7 +106,7 @@ export default function Navbar() {
             >
               {signOutBusy ? "Signing out..." : "Sign out"}
             </button>
-          ) : (
+          ) : configured ? (
             <button
               type="button"
               onClick={() => navigateTo("/auth")}
@@ -118,7 +118,7 @@ export default function Navbar() {
             >
               Sign in
             </button>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

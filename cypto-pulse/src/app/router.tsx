@@ -5,6 +5,7 @@ import HomePage from "../pages/HomePage";
 import CoinDetailsPage from "../pages/CoinDetailsPage";
 import WatchlistPage from "../pages/WatchlistPage";
 import AuthPage from "../pages/AuthPage";
+import { useAuth } from "../auth/AuthProvider";
 
 type RouteState =
   | { view: "home" }
@@ -32,6 +33,7 @@ function resolveRoute(pathname: string): RouteState {
 
 export default function AppRouter() {
   const [pathname, setPathname] = useState(() => window.location.pathname);
+  const { configured } = useAuth();
 
   useEffect(() => {
     const syncLocation = () => setPathname(window.location.pathname);
@@ -48,7 +50,7 @@ export default function AppRouter() {
   } else if (route.view === "coin") {
     page = <CoinDetailsPage coinId={route.coinId} />;
   } else if (route.view === "auth") {
-    page = <AuthPage />;
+    page = configured ? <AuthPage /> : <HomePage />;
   } else {
     page = <HomePage />;
   }
