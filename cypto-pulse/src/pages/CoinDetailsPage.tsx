@@ -144,13 +144,22 @@ export default function CoinDetailsPage({ coinId }: CoinDetailsPageProps) {
 
   return (
     <div className="space-y-8">
-      <button
-        type="button"
-        className="inline-block text-emerald-400 hover:underline"
-        onClick={goHome}
-      >
-        ← Back to dashboard
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          className="inline-block text-emerald-400 hover:underline"
+          onClick={goHome}
+        >
+          ← Back to dashboard
+        </button>
+        <button
+          type="button"
+          className="inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
+          onClick={refresh}
+        >
+          Refresh
+        </button>
+      </div>
 
       <section className="rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">

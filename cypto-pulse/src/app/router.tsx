@@ -4,11 +4,13 @@ import AppShell from "../components/layout/AppShell";
 import HomePage from "../pages/HomePage";
 import CoinDetailsPage from "../pages/CoinDetailsPage";
 import WatchlistPage from "../pages/WatchlistPage";
+import AuthPage from "../pages/AuthPage";
 
 type RouteState =
   | { view: "home" }
   | { view: "watchlist" }
-  | { view: "coin"; coinId: string | null };
+  | { view: "coin"; coinId: string | null }
+  | { view: "auth" };
 
 function resolveRoute(pathname: string): RouteState {
   const segments = pathname.split("?")[0].split("/").filter(Boolean);
@@ -19,6 +21,10 @@ function resolveRoute(pathname: string): RouteState {
 
   if (segments[0] === "coin") {
     return { view: "coin", coinId: segments[1] ?? null };
+  }
+
+  if (segments[0] === "auth") {
+    return { view: "auth" };
   }
 
   return { view: "home" };
@@ -41,6 +47,8 @@ export default function AppRouter() {
     page = <WatchlistPage />;
   } else if (route.view === "coin") {
     page = <CoinDetailsPage coinId={route.coinId} />;
+  } else if (route.view === "auth") {
+    page = <AuthPage />;
   } else {
     page = <HomePage />;
   }

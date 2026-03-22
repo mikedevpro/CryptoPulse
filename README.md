@@ -1,116 +1,174 @@
-# 🚀 CryptoPulse
+### 🚀 CryptoPulse — Real-Time Crypto Market Dashboard
 
-CryptoPulse is a modern, responsive crypto market dashboard built with React and TypeScript. It provides real-time cryptocurrency data, interactive charts, and a personalized watchlist experience.
+A production-style cryptocurrency dashboard that allows users to explore market data, track favorite coins, and interact with live financial data through a fast, responsive UI.
 
----
+### 🎯 The Goal
 
-## 🌐 Live Demo
-👉 crypto-pulse-ashy.vercel.app
+Build a modern crypto dashboard that feels like a real product — not just a data viewer.
 
----
+Key objectives:
 
-## 📸 Screenshots
+- Deliver real-time market data
+- Provide a clean, intuitive UX for exploring coins
+- Handle API rate limits and failures gracefully
+- Support user accounts with persistent favorites
 
+### 🧱 Tech Stack
 
-<img width="1278" height="630" alt="Screenshot 2026-03-19 at 7 26 45 AM" src="https://github.com/user-attachments/assets/4c58bed0-ddf5-486e-b2b1-0cde34457790" />
+Frontend
 
-<img width="1278" height="630" alt="Screenshot 2026-03-19 at 7 27 12 AM" src="https://github.com/user-attachments/assets/dfebbbca-8acb-46f0-80de-4acde0a33591" />
-
-<img width="1278" height="630" alt="Screenshot 2026-03-19 at 7 27 31 AM" src="https://github.com/user-attachments/assets/9ccee1a3-9b2a-410c-bf48-47877b780c2a" />
-
--->
-
----
-
-## ✨ Features
-
-- 📊 Live cryptocurrency market data (CoinGecko API)
-- 🔍 Search and filter coins by name or symbol
-- ↕️ Sort by market cap and volume
-- ⭐ Favorite coins with persistent watchlist (localStorage)
-- 📈 7-day price charts for each coin
-- 📉 Sparkline mini charts in dashboard table
-- 📄 Dedicated coin detail pages
-- 📱 Fully responsive design
-
----
-
-## 🧠 What This Project Demonstrates
-
-- API integration and async data handling
-- Component-based architecture in React
-- State management with hooks
-- Dynamic routing with React Router
-- Data visualization using Recharts
-- Persistent state using localStorage
-- Clean, scalable frontend structure
-
----
-
-## 🛠️ Tech Stack
-
-**Frontend**
-- React
+- React (Vite)
 - TypeScript
-- Vite
 - Tailwind CSS
 
-**Data & Visualization**
-- CoinGecko API
-- Recharts
+Backend / Data
 
-**Routing & State**
-- React Router
-- Custom hooks
+- Supabase (Auth + Database)
+- CoinGecko API (market data)
 
----
+Architecture
 
-## 📂 Project Structure
-src/
-components/
-pages/
-hooks/
-services/
-utils/
-types/
+- Custom hooks for data fetching (useCryptoMarkets)
+- Client-side caching with TTL
+- Rate-limit handling with cooldown timers
+- API proxy layer via Vercel
 
----
+### ⚙️ Key Features
 
-## ⚡ Getting Started
+#### 📊 Real-Time Market Dashboard
 
-```bash
-git clone https://github.com/mikedevpro/CryptoPulse.git
-cd crypto-pulse
-npm install
-npm run dev
+- Displays top cryptocurrencies with live pricing
+- Sorting (market cap, price change, etc.)
+- Search by name or symbol
+
+#### ⭐ User Favorites (Persistent)
+
+- Authenticated users can save favorite coins
+- Favorites persist across sessions using Supabase
+- Fallback logic ensures favorites still display even if not in current market page
+
+#### 🔁 Smart Data Fetching
+
+- Caching layer reduces unnecessary API calls
+- Rate-limit protection with cooldown messaging
+- Manual refresh with user feedback
+
+#### 🚨 Resilient Error Handling
+
+Graceful handling of:
+
+- API failures
+- rate limiting (429)
+- network issues
+
+Cached data remains visible even when refresh fails
+
+#### 📈 Market Insights
+
+- Top movers (gainers/losers)
+- Market summary stats
+- Clean data visualization patterns
+
+### 🧠 Technical Highlights
+
+#### 1. Intelligent Caching System
+
+```ts
+const canUseCache =
+  !!cached && now - cached.fetchedAt < MARKETS_CACHE_TTL_MS;
 ```
 
----
+- Prevents redundant API calls
+- Improves perceived performance
+- Keeps UI responsive even under API limits
 
-## 🚢 Deploying to Vercel
+#### 2. Rate-Limit Handling (Real-World Problem Solving)
 
-Use these steps when publishing:
+```ts
+if (apiError?.status === 429) {
+  const retryDelayMs = (apiError.retryAfter ?? 30) * 1000;
+  setNextAllowedRefreshAt(Date.now() + retryDelayMs);
+}
+```
 
-1. Push your code to your connected branch.
-2. In Vercel, set project root to `cypto-pulse` for framework detection (or keep auto-detect if this file structure is already recognized).
-3. Confirm build settings:
-   - Build command: `npm run build`
-   - Output directory: `dist`
-   - If root deploy config is used, run:
-     - `cd cypto-pulse`
-     - `npm run build`
-4. Make sure a `vercel.json` exists at repo root with the SPA rewrite for client-side routing:
-   ```json
-   {
-     "rewrites": [
-       { "source": "/(.*)", "destination": "/index.html" }
-     ]
-   }
-   ```
-5. Verify after deploy:
-   - Home route loads successfully.
-   - Deep routes like `/coin/<id>` work after refresh.
-   - API proxy path (if still relying on `/api/coingecko`) returns data.
+- Detects API throttling
+- Displays countdown to user
+- Prevents spam requests
+
+👉 This is production-level thinking most junior devs don’t show.
+
+#### 3. Fault-Tolerant UI Rendering
+
+Instead of hiding data on error:
+
+```ts
+const showMarketContent = coins.length > 0;
+```
+
+- Keeps stale data visible
+- Shows error as a banner instead of breaking UI
+- Mimics real-world dashboards (like trading apps)
+
+#### 4. Favorites Fallback Strategy
+
+```ts
+marketById.get(id) || fallbackById.get(id)
+```
+
+- Ensures favorites always render
+- Handles pagination gaps gracefully
+- Shows deeper understanding of data consistency
+
+#### 5. Full-Stack Integration (Supabase)
+
+- User authentication
+- Persistent user-specific data
+- Real-world app behavior (not just local state)
+
+### 🎨 UX Decisions
+
+- Sticky search + sort controls
+- Responsive layout (mobile → desktop)
+- Clear loading / error / empty states
+- Visual hierarchy for readability
+
+### ⚔️ Challenges & Solutions
+
+❌ Problem: API rate limiting (429 errors)
+
+Solution:
+
+- Built cooldown system with retry timer
+- Cached previous results to avoid blank UI
+
+❌ Problem: Favorites not in current dataset
+
+Solution:
+
+- Secondary fetch using coinIds
+- Merge strategy for consistent rendering
+
+❌ Problem: Production API failures (403)
+
+Solution:
+
+- Implemented API proxy strategy
+- Improved error logging and handling
+
+### 📈 What I’d Improve Next
+
+- Add coin detail page with charts
+- WebSocket or polling for real-time updates
+- Notifications for major price movements
+- Performance optimization (virtualized list)
+
+### 💡 What This Project Demonstrates
+
+- Real-world API integration
+- Error handling under real constraints
+- Full-stack thinking (frontend + backend + auth)
+- Performance optimization
+- UX-first development mindset
 
 ## 🎯 Future Improvements
 

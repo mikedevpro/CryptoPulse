@@ -16,9 +16,29 @@ import type { CoinMarket, SortOption } from "../types/crypto";
 export default function HomePage() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("market_cap_desc");
-  const { coins, loading, error } = useCryptoMarkets(sort);
+  const {
+    coins,
+    loading,
+    error,
+    refresh,
+    lastUpdatedAt,
+    autoRefreshEnabled,
+    toggleAutoRefresh,
+  } = useCryptoMarkets(sort);
   const { favorites, toggleFavorite } = useFavorites();
   const [favoriteLookupCoins, setFavoriteLookupCoins] = useState<CoinMarket[]>([]);
+  const todayLabel = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date());
+  const lastUpdatedLabel = lastUpdatedAt
+    ? new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      }).format(new Date(lastUpdatedAt))
+    : "—";
 
   const uniqueFavorites = useMemo(
     () => Array.from(new Set(favorites)),
@@ -85,6 +105,11 @@ export default function HomePage() {
     };
   }, [coins, uniqueFavorites]);
 
+  const hasCoins = coins.length > 0;
+  const showInitialLoading = loading && !hasCoins;
+  const showFullError = !!error && !hasCoins;
+  const showMarketContent = hasCoins;
+
   return (
     <div className="space-y-6 sm:space-y-8">
       <section className="rounded-[1.5rem] border border-white/10 bg-white/5 p-3 shadow-[0_0_40px_rgba(16,185,129,0.08)] backdrop-blur-sm sm:rounded-[2rem] sm:p-8 sm:shadow-[0_0_60px_rgba(16,185,129,0.08)]">
@@ -102,22 +127,60 @@ export default function HomePage() {
             24-hour movement, and search market data in a clean, responsive
             interface built with React and TypeScript.
           </p>
+          <p className="text-sm font-medium text-emerald-200">Date: {todayLabel}</p>
+          <p className="text-sm text-slate-300">
+            Last updated: {lastUpdatedLabel} (auto-refresh every 60s)
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleAutoRefresh}
+              className="inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
+            >
+              Auto-refresh: {autoRefreshEnabled ? "ON" : "OFF"}
+            </button>
+            <p className="inline-flex items-center gap-2 text-sm text-slate-300">
+              <span
+                className={`h-2.5 w-2.5 rounded-full ${
+                  loading ? "animate-pulse bg-emerald-400" : "bg-slate-500"
+                }`}
+                aria-hidden="true"
+              />
+              {loading ? "Updating..." : "Idle"}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={refresh}
+            disabled={loading}
+            className="inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
         </div>
       </section>
 
-      {loading ? (
+      {showInitialLoading ? (
         <div role="status" aria-live="polite">
           <LoadingState />
         </div>
       ) : null}
-      {error ? (
+
+      {showFullError ? (
         <div role="alert" aria-live="assertive">
           <ErrorState message={error} />
         </div>
       ) : null}
 
-      {!loading && !error ? (
+      {showMarketContent ? (
         <>
+          {error ? (
+            <div role="alert" aria-live="assertive">
+              <ErrorState message={error} />
+            </div>
+          ) : null}
+
           <div className="space-y-4 sm:space-y-6">
             <MarketStats coins={coins} />
             <FavoritesPanel favoriteCoins={favoriteCoins} />
@@ -128,7 +191,11 @@ export default function HomePage() {
             <div className="flex-1">
               <SearchBar value={search} onChange={setSearch} />
             </div>
-            <SortSelect value={sort} onChange={setSort} />
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <SortSelect value={sort} onChange={setSort} />
+              </div>
+            </div>
           </section>
 
           {filteredCoins.length > 0 ? (

@@ -17,12 +17,10 @@ export function useCryptoMarkets(sort: SortOption) {
   const [refreshNonce, setRefreshNonce] = useState(0);
   const [nextAllowedRefreshAt, setNextAllowedRefreshAt] = useState(0);
   const [cooldownMessage, setCooldownMessage] = useState("");
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<number | null>(null);
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
 
   useEffect(() => {
-    if (!nextAllowedRefreshAt) {
-      setCooldownMessage("");
-    }
-
     let ignore = false;
 
     async function load() {
@@ -33,18 +31,21 @@ export function useCryptoMarkets(sort: SortOption) {
 
       if (cached) {
         setCoins(cached.data);
+        setLastUpdatedAt(cached.fetchedAt);
         setLoading(false);
       } else {
         setLoading(true);
       }
 
-      if (canUseCache && cached) {
+      if (canUseCache) {
+        setError("");
         return;
       }
 
-      const remainingWaitMs = nextAllowedRefreshAt - now;
-      if (remainingWaitMs > 0) {
-        setError(formatCooldownMessage(remainingWaitMs));
+      if (nextAllowedRefreshAt > now) {
+        const message = formatCooldownMessage(nextAllowedRefreshAt - now);
+        setCooldownMessage(message);
+        setError(message);
         setLoading(false);
         return;
       }
@@ -55,25 +56,33 @@ export function useCryptoMarkets(sort: SortOption) {
         setCooldownMessage("");
         const data = await getMarkets({ order: sort, perPage: 25 });
 
-        if (!ignore) {
-          setCoins(data);
-          marketCache.set(sort, { data, fetchedAt: Date.now() });
-          setNextAllowedRefreshAt(0);
-          setCooldownMessage("");
-        }
+        if (ignore) return;
+
+        setCoins(data);
+        const fetchedAt = Date.now();
+        marketCache.set(sort, { data, fetchedAt });
+        setLastUpdatedAt(fetchedAt);
+        setNextAllowedRefreshAt(0);
+        setCooldownMessage("");
+        setError("");
       } catch (err) {
         console.error(err);
-        if (!ignore) {
-          const apiError = err instanceof ApiError ? err : null;
 
-          if (apiError?.status === 429) {
-            const retryDelayMs = (apiError.retryAfter ?? 30) * 1000;
-            setNextAllowedRefreshAt(Date.now() + Math.max(retryDelayMs, 3000));
-            setError(formatCooldownMessage(Math.max(retryDelayMs, 3000)));
-            setCooldownMessage(formatCooldownMessage(Math.max(retryDelayMs, 3000)));
-          } else {
-            setError("Unable to load market data right now.");
-          }
+        if (ignore) return;
+
+        const apiError = err instanceof ApiError ? err : null;
+
+        if (apiError?.status === 429) {
+          const retryDelayMs = Math.max((apiError.retryAfter ?? 30) * 1000, 3000);
+          const message = formatCooldownMessage(retryDelayMs);
+
+          setNextAllowedRefreshAt(Date.now() + retryDelayMs);
+          setCooldownMessage(message);
+          setError(message);
+        } else if (apiError) {
+          setError(apiError.message);
+        } else {
+          setError("Something went wrong.");
         }
       } finally {
         if (!ignore) {
@@ -82,7 +91,7 @@ export function useCryptoMarkets(sort: SortOption) {
       }
     }
 
-      load();
+    load();
 
     return () => {
       ignore = true;
@@ -90,34 +99,65 @@ export function useCryptoMarkets(sort: SortOption) {
   }, [sort, refreshNonce, nextAllowedRefreshAt]);
 
   useEffect(() => {
+    if (!autoRefreshEnabled) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setRefreshNonce((value) => value + 1);
+    }, 60_000);
+
+    return () => window.clearInterval(interval);
+  }, [autoRefreshEnabled]);
+
+  useEffect(() => {
     if (!nextAllowedRefreshAt) return;
 
     const interval = window.setInterval(() => {
       const remainingMs = Math.max(0, nextAllowedRefreshAt - Date.now());
+
       if (remainingMs === 0) {
         setNextAllowedRefreshAt(0);
-        setError((current) => {
-          if (current.startsWith("Rate limit reached.")) return "";
-          return current;
-        });
         setCooldownMessage("");
-      } else {
-        const nextMessage = formatCooldownMessage(remainingMs);
-        setError(nextMessage);
-        setCooldownMessage(nextMessage);
+        setError((current) =>
+          current.startsWith("Rate limit reached.") ? "" : current
+        );
+        return;
       }
+
+      const nextMessage = formatCooldownMessage(remainingMs);
+      setCooldownMessage(nextMessage);
+      setError(nextMessage);
     }, 1000);
 
     return () => window.clearInterval(interval);
   }, [nextAllowedRefreshAt]);
 
   const refresh = () => {
-    if (Date.now() < nextAllowedRefreshAt) {
-      setError(cooldownMessage || formatCooldownMessage(nextAllowedRefreshAt - Date.now()));
+    const now = Date.now();
+
+    if (now < nextAllowedRefreshAt) {
+      setError(cooldownMessage || formatCooldownMessage(nextAllowedRefreshAt - now));
       return;
     }
+
+    setError("");
+    setCooldownMessage("");
     setRefreshNonce((value) => value + 1);
   };
 
-  return { coins, loading, error, refresh };
+  const toggleAutoRefresh = () => {
+    setAutoRefreshEnabled((value) => !value);
+  };
+
+  return {
+    coins,
+    loading,
+    error,
+    cooldownMessage,
+    lastUpdatedAt,
+    autoRefreshEnabled,
+    toggleAutoRefresh,
+    refresh,
+  };
 }

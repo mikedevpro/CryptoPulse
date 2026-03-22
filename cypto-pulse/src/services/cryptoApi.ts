@@ -10,12 +10,19 @@ const BASE_URL = "/api/coingecko";
 export class ApiError extends Error {
   status: number;
   retryAfter: number | null;
+  details?: string;
 
-  constructor(message: string, status: number, retryAfter: number | null = null) {
+  constructor(
+    message: string,
+    status: number,
+    retryAfter: number | null = null,
+    details?: string
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.retryAfter = retryAfter;
+    this.details = details;
   }
 }
 
@@ -32,19 +39,46 @@ async function handleResponse<T>(response: Response): Promise<T> {
   }
 
   const retryHeader = response.headers.get("retry-after");
-  const retryAfter = retryHeader
-    ? Number.parseInt(retryHeader, 10)
-    : null;
+  const retryAfter = retryHeader ? Number.parseInt(retryHeader, 10) : null;
+
+  let details = "";
+  try {
+    details = await response.text();
+  } catch {
+    details = "";
+  }
+
+  console.error("Crypto API request failed:", {
+    url: response.url,
+    status: response.status,
+    statusText: response.statusText,
+    details,
+  });
 
   if (response.status === 429) {
     throw new ApiError(
       "CoinGecko rate limit reached. Please wait before refreshing again.",
       response.status,
-      Number.isNaN(retryAfter) ? null : retryAfter
+      Number.isNaN(retryAfter) ? null : retryAfter,
+      details
     );
   }
 
-  throw new ApiError("Request failed.", response.status, retryAfter);
+  if (response.status === 403) {
+    throw new ApiError(
+      "Access to CoinGecko was denied. Please try again later.",
+      response.status,
+      Number.isNaN(retryAfter) ? null : retryAfter,
+      details
+    );
+  }
+
+  throw new ApiError(
+    `Request failed with status ${response.status}.`,
+    response.status,
+    Number.isNaN(retryAfter) ? null : retryAfter,
+    details
+  );
 }
 
 export async function getMarkets({

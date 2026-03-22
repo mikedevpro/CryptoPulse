@@ -2,7 +2,7 @@ import FavoritesPanel from "../components/crypto/FavoritesPanel";
 import EmptyState from "../ui/EmptyState";
 import { useMemo, useState, useEffect } from "react";
 import { useFavorites } from "../hooks/useFavorites";
-import { getMarkets } from "../services/cryptoApi";
+import { ApiError, getMarkets } from "../services/cryptoApi";
 import type { CoinMarket } from "../types/crypto";
 
 export default function WatchlistPage() {
@@ -10,6 +10,7 @@ export default function WatchlistPage() {
   const [favoriteCoins, setFavoriteCoins] = useState<CoinMarket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
   const uniqueFavorites = useMemo(
     () => Array.from(new Set(favorites)),
@@ -45,9 +46,13 @@ export default function WatchlistPage() {
           .filter((coin): coin is CoinMarket => Boolean(coin));
 
         setFavoriteCoins(orderedFavorites);
-      } catch {
+      } catch (error) {
         if (active) {
-          setError("Unable to load watchlist data right now.");
+          if (error instanceof ApiError) {
+            setError(error.message);
+          } else {
+            setError("Something went wrong.");
+          }
         }
       } finally {
         if (active) {
@@ -61,7 +66,7 @@ export default function WatchlistPage() {
     return () => {
       active = false;
     };
-  }, [uniqueFavorites]);
+  }, [uniqueFavorites, refreshNonce]);
 
   return (
     <div className="space-y-8">
@@ -78,6 +83,15 @@ export default function WatchlistPage() {
           <p className="text-lg leading-8 text-slate-300">
             Keep an eye on your favorite coins in one dedicated view.
           </p>
+
+          <button
+            type="button"
+            onClick={() => setRefreshNonce((value) => value + 1)}
+            disabled={loading}
+            className="inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
         </div>
       </section>
 

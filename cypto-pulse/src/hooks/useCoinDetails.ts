@@ -66,7 +66,11 @@ export function useCoinDetails(coinId: string | null): CoinDetailsState {
           if (err instanceof ApiError && err.status === 429) {
             setError("Rate limit reached. Please wait a bit before retrying.");
           } else {
-            setError("Unable to load coin details.");
+            if (err instanceof ApiError) {
+              setError(err.message);
+            } else {
+              setError("Something went wrong.");
+            }
           }
           setCoin(null);
           setChart([]);
