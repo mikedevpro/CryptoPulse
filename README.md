@@ -5,16 +5,19 @@ CryptoPulse is a modern, responsive crypto market dashboard built with React and
 ---
 
 ## 🌐 Live Demo
-👉 Coming soon!
+👉 crypto-pulse-ashy.vercel.app
 
 ---
 
 ## 📸 Screenshots
 
-Coming soon!
-![Dashboard](./screenshots/dashboard.png)
-![Coin Details](./screenshots/details.png)
-![Watchlist](./screenshots/watchlist.png)
+
+<img width="1278" height="630" alt="Screenshot 2026-03-19 at 7 26 45 AM" src="https://github.com/user-attachments/assets/4c58bed0-ddf5-486e-b2b1-0cde34457790" />
+
+<img width="1278" height="630" alt="Screenshot 2026-03-19 at 7 27 12 AM" src="https://github.com/user-attachments/assets/dfebbbca-8acb-46f0-80de-4acde0a33591" />
+
+<img width="1278" height="630" alt="Screenshot 2026-03-19 at 7 27 31 AM" src="https://github.com/user-attachments/assets/9ccee1a3-9b2a-410c-bf48-47877b780c2a" />
+
 -->
 
 ---
@@ -76,7 +79,7 @@ types/
 ## ⚡ Getting Started
 
 ```bash
-git clone https://github.com/mikedevpro/crypto-pulse.git
+git clone https://github.com/mikedevpro/CryptoPulse.git
 cd crypto-pulse
 npm install
 npm run dev
