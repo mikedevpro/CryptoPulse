@@ -20,6 +20,7 @@ export default function HomePage() {
     coins,
     loading,
     error,
+    cooldownMessage,
     refresh,
     lastUpdatedAt,
     autoRefreshEnabled,
@@ -170,6 +171,16 @@ export default function HomePage() {
       {showFullError ? (
         <div role="alert" aria-live="assertive">
           <ErrorState message={error} />
+        </div>
+      ) : null}
+
+      {cooldownMessage ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="rounded-2xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200"
+        >
+          API health: rate-limited. {cooldownMessage}
         </div>
       ) : null}
 

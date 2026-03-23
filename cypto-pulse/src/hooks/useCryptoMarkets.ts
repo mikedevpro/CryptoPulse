@@ -75,6 +75,13 @@ export function useCryptoMarkets(sort: SortOption) {
         if (apiError?.status === 429) {
           const retryDelayMs = Math.max((apiError.retryAfter ?? 30) * 1000, 3000);
           const message = formatCooldownMessage(retryDelayMs);
+          const retryAt = new Date(Date.now() + retryDelayMs).toISOString();
+
+          console.warn("Rate limited by CoinGecko. Backing off before next request.", {
+            sort,
+            retryDelayMs,
+            retryAt,
+          });
 
           setNextAllowedRefreshAt(Date.now() + retryDelayMs);
           setCooldownMessage(message);
@@ -137,6 +144,10 @@ export function useCryptoMarkets(sort: SortOption) {
     const now = Date.now();
 
     if (now < nextAllowedRefreshAt) {
+      console.info("Manual refresh blocked due to active cooldown.", {
+        sort,
+        remainingMs: nextAllowedRefreshAt - now,
+      });
       setError(cooldownMessage || formatCooldownMessage(nextAllowedRefreshAt - now));
       return;
     }
