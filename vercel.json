@@ -4,10 +4,6 @@
   "outputDirectory": "cypto-pulse/dist",
   "rewrites": [
     {
-      "source": "/api/coingecko/(.*)",
-      "destination": "https://api.coingecko.com/api/v3/$1"
-    },
-    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
