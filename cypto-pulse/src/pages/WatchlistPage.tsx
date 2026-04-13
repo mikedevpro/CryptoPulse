@@ -69,18 +69,18 @@ export default function WatchlistPage() {
   }, [uniqueFavorites, refreshNonce]);
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-[0_0_60px_rgba(16,185,129,0.08)] backdrop-blur-sm">
+    <div className="space-y-5 sm:space-y-6 lg:space-y-8">
+      <section className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 shadow-[0_0_40px_rgba(16,185,129,0.08)] backdrop-blur-sm sm:p-6 lg:rounded-[2rem] lg:p-8 lg:shadow-[0_0_60px_rgba(16,185,129,0.08)]">
         <div className="max-w-3xl space-y-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400 sm:text-sm sm:tracking-[0.25em]">
             Your saved market view
           </p>
 
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
             Watchlist
           </h1>
 
-          <p className="text-lg leading-8 text-slate-300">
+          <p className="text-sm leading-6 text-slate-300 sm:text-base sm:leading-7 lg:text-lg lg:leading-8">
             Keep an eye on your favorite coins in one dedicated view.
           </p>
 
@@ -88,7 +88,7 @@ export default function WatchlistPage() {
             type="button"
             onClick={() => setRefreshNonce((value) => value + 1)}
             disabled={loading}
-            className="inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "Refreshing..." : "Refresh"}
           </button>

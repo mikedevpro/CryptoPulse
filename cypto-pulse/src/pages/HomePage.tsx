@@ -112,35 +112,37 @@ export default function HomePage() {
   const showMarketContent = hasCoins;
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <section className="rounded-[1.5rem] border border-white/10 bg-white/5 p-3 shadow-[0_0_40px_rgba(16,185,129,0.08)] backdrop-blur-sm sm:rounded-[2rem] sm:p-8 sm:shadow-[0_0_60px_rgba(16,185,129,0.08)]">
+    <div className="space-y-5 sm:space-y-6 lg:space-y-8">
+      <section className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4 shadow-[0_0_32px_rgba(16,185,129,0.08)] backdrop-blur-sm sm:rounded-[1.5rem] sm:p-6 lg:rounded-[2rem] lg:p-8 lg:shadow-[0_0_60px_rgba(16,185,129,0.08)]">
         <div className="max-w-3xl space-y-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-400 sm:text-sm sm:tracking-[0.25em]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-400 sm:text-xs lg:text-sm lg:tracking-[0.25em]">
             Real-time crypto market dashboard
           </p>
 
-          <h1 className="text-2xl font-bold leading-tight tracking-tight text-white sm:text-5xl sm:leading-tight">
+          <h1 className="text-2xl font-bold leading-tight tracking-tight text-white sm:text-3xl lg:text-5xl lg:leading-tight">
             Track crypto markets with clarity and style.
           </h1>
 
-          <p className="text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
+          <p className="text-sm leading-6 text-slate-300 sm:text-[15px] sm:leading-7 lg:text-base">
             CryptoPulse helps users explore top-performing coins, monitor
             24-hour movement, and search market data in a clean, responsive
             interface built with React and TypeScript.
           </p>
-          <p className="text-sm font-medium text-emerald-200">Date: {todayLabel}</p>
-          <p className="text-sm text-slate-300">
-            Last updated: {lastUpdatedLabel} (auto-refresh every 60s)
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="grid gap-1 text-sm sm:grid-cols-2 sm:gap-3">
+            <p className="font-medium text-emerald-200">Date: {todayLabel}</p>
+            <p className="text-slate-300">
+              Last updated: {lastUpdatedLabel} (auto-refresh every 60s)
+            </p>
+          </div>
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
             <button
               type="button"
               onClick={toggleAutoRefresh}
-              className="inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
             >
               Auto-refresh: {autoRefreshEnabled ? "ON" : "OFF"}
             </button>
-            <p className="inline-flex items-center gap-2 text-sm text-slate-300">
+            <p className="inline-flex min-h-11 items-center gap-2 text-sm text-slate-300">
               <span
                 className={`h-2.5 w-2.5 rounded-full ${
                   loading ? "animate-pulse bg-emerald-400" : "bg-slate-500"
@@ -155,7 +157,7 @@ export default function HomePage() {
             type="button"
             onClick={refresh}
             disabled={loading}
-            className="inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit"
           >
             {loading ? "Refreshing..." : "Refresh"}
           </button>
@@ -192,13 +194,13 @@ export default function HomePage() {
             </div>
           ) : null}
 
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-4 sm:space-y-5 lg:space-y-6">
             <MarketStats coins={coins} />
             <FavoritesPanel favoriteCoins={favoriteCoins} />
             <TopMovers coins={coins} />
           </div>
 
-          <section className="sticky top-16 z-40 -mx-1 mb-3 flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-950/75 p-2 shadow-[0_0_26px_rgba(2,6,23,0.45)] backdrop-blur-sm sm:top-20 sm:static sm:mb-0 sm:-mx-0 sm:rounded-3xl sm:bg-white/5 sm:p-4">
+          <section className="sticky top-14 z-40 -mx-1 mb-3 flex flex-col gap-2.5 rounded-2xl border border-white/10 bg-slate-950/80 p-2 shadow-[0_0_26px_rgba(2,6,23,0.45)] backdrop-blur-sm md:top-20 md:static md:mb-0 md:-mx-0 md:gap-3 md:rounded-3xl md:bg-white/5 md:p-4">
             <div className="flex-1">
               <SearchBar value={search} onChange={setSearch} />
             </div>

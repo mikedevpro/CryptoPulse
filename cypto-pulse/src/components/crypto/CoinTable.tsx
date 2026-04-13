@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FavoritesButton from "./FavoritesButton";
 import Sparkline from "./Sparkline";
 import type { CoinMarket } from "../../types/crypto";
@@ -21,10 +21,35 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
   const [activeSwipeId, setActiveSwipeId] = useState<string | null>(null);
   const [dragState, setDragState] = useState({ id: null as string | null, offset: 0 });
   const startXRef = useRef(0);
-  const isSmallScreen = typeof window !== "undefined" && window.innerWidth < 640;
+  const [isMobileLayout, setIsMobileLayout] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 767px)").matches
+      : false
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateLayout = (event: MediaQueryListEvent | MediaQueryList) => {
+      const isMobile = "matches" in event ? event.matches : mediaQuery.matches;
+      setIsMobileLayout(isMobile);
+      if (!isMobile) {
+        setActiveSwipeId(null);
+        setDragState({ id: null, offset: 0 });
+      }
+    };
+
+    updateLayout(mediaQuery);
+    mediaQuery.addEventListener("change", updateLayout);
+
+    return () => mediaQuery.removeEventListener("change", updateLayout);
+  }, []);
 
   const beginSwipe = (coinId: string, pageX: number) => {
-    if (!isSmallScreen) {
+    if (!isMobileLayout) {
       return;
     }
 
@@ -66,8 +91,8 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
 
   return (
     <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm">
-      <div className="max-h-[68vh] overflow-x-auto overflow-y-auto max-[360px]:max-h-[72vh] sm:max-h-[62vh]">
-        <table className="hidden min-w-full text-left text-sm sm:table">
+      <div className="max-h-[70vh] overflow-x-auto overflow-y-auto max-[360px]:max-h-[72vh] md:max-h-[62vh]">
+        <table className="hidden min-w-full text-left text-sm md:table">
           <caption className="sr-only">Crypto market table</caption>
           <thead className="sticky top-0 z-20 bg-slate-950/80 backdrop-blur">
             <tr className="border-b border-white/20">
@@ -178,7 +203,7 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
           </tbody>
         </table>
 
-        <div className="space-y-2 bg-slate-950/20 p-2 sm:space-y-0 sm:p-0 sm:hidden">
+        <div className="space-y-2 bg-slate-950/20 p-2 md:hidden">
           {coins.map((coin) => {
             const change = coin.price_change_percentage_24h ?? 0;
             const isFavorite = favorites.includes(coin.id);
@@ -233,14 +258,14 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
                       endSwipe(coin.id);
                     }
                   }}
-                  className="block rounded-2xl bg-white/5 p-2.5 transition-transform max-[360px]:p-2 sm:p-3 sm:transition-none"
+                  className="block rounded-2xl bg-white/5 p-2.5 transition-transform max-[360px]:p-2 md:p-3 md:transition-none"
                   style={{
                     transform: `translateX(${offset}px)`,
                     touchAction: "pan-y",
                     transitionProperty: dragState.id === coin.id ? "none" : undefined,
                   }}
                 >
-                  <div className="flex items-start justify-between gap-2 sm:gap-2.5 max-[360px]:gap-1.5 sm:gap-3">
+                  <div className="flex items-start justify-between gap-2 max-[360px]:gap-1.5 md:gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <button
                         type="button"
@@ -255,7 +280,7 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
                             className="h-8 w-8 shrink-0 rounded-full ring-1 ring-white/10 max-[360px]:h-7 max-[360px]:w-7"
                           />
                           <div className="min-w-0">
-                            <p className="truncate text-[13px] font-medium text-white max-[360px]:text-[12px] sm:text-base">
+                            <p className="truncate text-[13px] font-medium text-white max-[360px]:text-[12px] md:text-base">
                               {coin.name}
                             </p>
                             <p className="truncate text-[11px] uppercase tracking-wide text-slate-400 max-[360px]:text-[10px]">
@@ -267,7 +292,7 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
                     </div>
 
                     <div className="shrink-0 text-right">
-                      <p className="text-sm font-semibold text-white max-[360px]:text-[13px] sm:text-base">
+                      <p className="text-sm font-semibold text-white max-[360px]:text-[13px] md:text-base">
                         {formatCurrency(coin.current_price)}
                       </p>
                       <span
@@ -282,7 +307,7 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
                     </div>
                   </div>
 
-                  <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-300 max-[360px]:text-[10px] max-[360px]:gap-1 sm:mt-3 sm:gap-2 sm:text-xs">
+                  <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-300 max-[360px]:gap-1 max-[360px]:text-[10px] md:mt-3 md:gap-2 md:text-xs">
                     <span className="rounded-full border border-white/10 px-2 py-1">#{coin.market_cap_rank}</span>
                     {coin.market_cap > 0 ? (
                       <span className="rounded-full border border-white/10 px-2 py-1">
@@ -296,7 +321,7 @@ export default function CoinTable({ coins, favorites, onToggleFavorite }: CoinTa
                     ) : null}
                   </div>
 
-                  <div className="mt-2.5 sm:mt-3">
+                  <div className="mt-2.5 md:mt-3">
                     {coin.sparkline_in_7d?.price?.length ? (
                       <Sparkline prices={coin.sparkline_in_7d.price} positive={isPositive} />
                     ) : (

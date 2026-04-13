@@ -143,8 +143,8 @@ export default function CoinDetailsPage({ coinId }: CoinDetailsPageProps) {
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center gap-3">
+    <div className="space-y-5 sm:space-y-6 lg:space-y-8">
+      <div className="flex flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-3">
         <button
           type="button"
           className="inline-block text-emerald-400 hover:underline"
@@ -154,39 +154,39 @@ export default function CoinDetailsPage({ coinId }: CoinDetailsPageProps) {
         </button>
         <button
           type="button"
-          className="inline-flex rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
           onClick={refresh}
         >
           Refresh
         </button>
       </div>
 
-      <section className="rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
-        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div className="flex items-center gap-4">
+      <section className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 backdrop-blur-sm sm:p-6 lg:rounded-[2rem] lg:p-8">
+        <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between md:gap-6">
+          <div className="flex items-center gap-3 sm:gap-4">
             <img
               src={coin.image.large}
               alt={coin.name}
-              className="h-16 w-16 rounded-full ring-1 ring-white/10"
+              className="h-12 w-12 rounded-full ring-1 ring-white/10 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
             />
             <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-emerald-400">
+              <p className="text-xs uppercase tracking-[0.2em] text-emerald-400 sm:text-sm">
                 Rank #{coin.market_cap_rank}
               </p>
-              <h1 className="text-4xl font-bold text-white">{coin.name}</h1>
-              <p className="mt-1 uppercase text-slate-400">{coin.symbol}</p>
+              <h1 className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl">{coin.name}</h1>
+              <p className="mt-1 text-sm uppercase text-slate-400">{coin.symbol}</p>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-5 py-4">
+          <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 sm:px-5 sm:py-4">
             <p className="text-sm text-slate-400">Live Price</p>
-            <p className="mt-2 text-3xl font-semibold text-white">
+            <p className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
               {typeof livePrice === "number" ? formatCurrency(livePrice) : "—"}
             </p>
           </div>
         </div>
 
-        <p className="mt-6 max-w-3xl leading-7 text-slate-300">
+        <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300 sm:mt-6 sm:text-base sm:leading-7">
           {shortDescription}
         </p>
       </section>

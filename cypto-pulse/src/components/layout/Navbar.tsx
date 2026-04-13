@@ -31,19 +31,27 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/60 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <button
-          type="button"
-          onClick={() => navigateTo("/")}
-          className="text-xl font-bold tracking-tight text-white"
-        >
-          Crypto<span className="text-emerald-400">Pulse</span>
-        </button>
+      <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 sm:py-4 lg:px-8">
+        <div className="flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => navigateTo("/")}
+            className="text-lg font-bold tracking-tight text-white sm:text-xl"
+          >
+            Crypto<span className="text-emerald-400">Pulse</span>
+          </button>
 
-        <div className="flex items-center gap-3">
+          {user ? (
+            <p className="max-w-[11rem] truncate rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200 sm:max-w-[18rem] sm:text-xs">
+              {user.email ?? "Logged in"}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="mt-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           {!user ? (
-            <>
-              <label className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300 md:flex">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <label className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
                 Profile
                 <select
                   className="rounded-md border border-white/15 bg-slate-900 px-2 py-1 text-xs text-white"
@@ -66,59 +74,59 @@ export default function Navbar() {
               >
                 New Profile
               </button>
-            </>
+            </div>
           ) : (
-            <p className="hidden rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200 md:block">
-              {user.email ?? "Logged in"}
-            </p>
+            <div className="hidden sm:block" aria-hidden="true" />
           )}
 
-          <button
-            type="button"
-            onClick={() => navigateTo("/")}
-            className={`rounded-full border px-4 py-2 text-sm transition ${
-              !isWatchlist
-                ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
-                : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:text-white"
-            }`}
-          >
-            Dashboard
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigateTo("/watchlist")}
-            className={`rounded-full border px-4 py-2 text-sm transition ${
-              isWatchlist
-                ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
-                : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:text-white"
-            }`}
-          >
-            Watchlist
-          </button>
-
-          {user ? (
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
             <button
               type="button"
-              onClick={handleSignOut}
-              disabled={signOutBusy || authLoading}
-              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {signOutBusy ? "Signing out..." : "Sign out"}
-            </button>
-          ) : configured ? (
-            <button
-              type="button"
-              onClick={() => navigateTo("/auth")}
-              className={`rounded-full border px-4 py-2 text-sm transition ${
-                isAuthPage
+              onClick={() => navigateTo("/")}
+              className={`inline-flex min-h-10 items-center justify-center rounded-full border px-3 py-2 text-xs transition sm:px-4 sm:text-sm ${
+                !isWatchlist
                   ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
                   : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:text-white"
               }`}
             >
-              Sign in
+              Dashboard
             </button>
-          ) : null}
+
+            <button
+              type="button"
+              onClick={() => navigateTo("/watchlist")}
+              className={`inline-flex min-h-10 items-center justify-center rounded-full border px-3 py-2 text-xs transition sm:px-4 sm:text-sm ${
+                isWatchlist
+                  ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
+                  : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:text-white"
+              }`}
+            >
+              Watchlist
+            </button>
+
+            {user ? (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={signOutBusy || authLoading}
+                className="col-span-2 inline-flex min-h-10 items-center justify-center rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200 transition hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-1 sm:px-4 sm:text-sm"
+              >
+                {signOutBusy ? "Signing out..." : "Sign out"}
+              </button>
+            ) : configured ? (
+              <button
+                type="button"
+                onClick={() => navigateTo("/auth")}
+                className={`col-span-2 inline-flex min-h-10 items-center justify-center rounded-full border px-3 py-2 text-xs transition sm:col-span-1 sm:px-4 sm:text-sm ${
+                  isAuthPage
+                    ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
+                    : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:text-white"
+                }`}
+              >
+                Sign in
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
     </header>
